@@ -51,7 +51,7 @@ export default function ShareSheet({ clip, onClose }: { clip: Clip; onClose: () 
           {typeof navigator !== "undefined" && "share" in navigator && (
             <ShareTarget label="More" bg="#3f3f46" glyph="⋯" onClick={() => navigator.share({ title: clip.title, text, url }).catch(() => {})} />
           )}
-          <ShareTarget label={copied ? "Copied!" : "Copy link"} bg="#c6ff3d" glyph={<LinkIcon width={22} height={22} className="text-black" />} onClick={copy} />
+          <ShareTarget label={copied ? "Copied!" : "Copy link"} bg="#c6ff3d" glyph={<LinkIcon width={22} height={22} className="text-white" />} onClick={copy} />
           {targets.map((t) => (
             <ShareTarget key={t.label} label={t.label} bg={t.bg} glyph={t.glyph} href={t.href} />
           ))}
@@ -66,7 +66,7 @@ export default function ShareSheet({ clip, onClose }: { clip: Clip; onClose: () 
 function ShareTarget({ label, bg, glyph, href, onClick }: { label: string; bg: string; glyph: React.ReactNode; href?: string; onClick?: () => void }) {
   const inner = (
     <>
-      <span className="flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold text-white" style={{ background: bg }}>
+      <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.07] text-xl font-semibold text-white grayscale transition hover:bg-white/15" data-bg={bg}>
         {glyph}
       </span>
       <span className="text-xs text-white/70">{label}</span>

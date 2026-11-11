@@ -64,14 +64,14 @@ export default function ClipSlot({ clip, active, onComments, onShare }: Props) {
     <div className="relative flex h-full w-full items-center justify-center md:gap-5 md:py-5">
       <div
         onPointerUp={onTap}
-        className="relative h-full w-full select-none overflow-hidden bg-ink md:aspect-[9/16] md:h-full md:w-auto md:max-w-full md:rounded-2xl"
+        className="relative h-full w-full select-none overflow-hidden bg-ink md:aspect-[9/16] md:h-full md:w-auto md:max-w-full md:rounded-2xl md:border md:border-white/10"
         style={{
-          background: `radial-gradient(120% 70% at 15% 0%, ${accent}55 0%, transparent 55%), radial-gradient(100% 60% at 100% 100%, ${accent}33 0%, transparent 60%), linear-gradient(180deg, #15151c 0%, #070709 100%)`,
+          background: "radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,0.09) 0%, transparent 60%), linear-gradient(180deg, #121212 0%, #000 100%)",
         }}
       >
         {/* subtle grid texture */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          className="pointer-events-none absolute inset-0 opacity-[0.035]"
           style={{ backgroundImage: "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)", backgroundSize: "28px 28px" }}
         />
 
@@ -98,7 +98,7 @@ export default function ClipSlot({ clip, active, onComments, onShare }: Props) {
 
         {/* scene */}
         <div key={`${player.idx}-${player.loops}`} className="absolute inset-0 flex flex-col items-center px-6 pb-[150px] pt-24 md:pb-[140px] md:pt-16">
-          <h2 className="anim-rise text-shadow max-w-[340px] text-center text-[26px] font-black leading-[1.1] tracking-tight sm:text-[28px]">
+          <h2 className="anim-rise text-shadow max-w-[340px] text-center text-[26px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[28px]">
             {scene.caption}
           </h2>
           <div className="flex w-full flex-1 items-center justify-center py-4">
@@ -109,7 +109,7 @@ export default function ClipSlot({ clip, active, onComments, onShare }: Props) {
         {/* karaoke subtitles */}
         {captions && (
           <div className="pointer-events-none absolute inset-x-0 bottom-[118px] z-10 flex justify-center px-5 pr-20 md:bottom-[112px] md:pr-5">
-            <p className="max-w-[360px] rounded-xl bg-black/55 px-3 py-2 text-center text-[13.5px] font-medium leading-snug backdrop-blur">
+            <p className="max-w-[360px] rounded-xl border border-white/[0.06] bg-black/60 px-3 py-2 text-center text-[13.5px] font-medium leading-snug backdrop-blur">
               {words.map((w, i) => (
                 <span key={i} className={i < spoken ? "text-white" : "text-white/40"}>
                   {w}{" "}
@@ -125,7 +125,7 @@ export default function ClipSlot({ clip, active, onComments, onShare }: Props) {
             @{channel.handle}
           </Link>
           <span className="ml-2 text-xs text-white/60">· {timeAgo(clip.createdAt)}</span>
-          {clip.generated && <span className="ml-2 rounded bg-lime/90 px-1.5 py-0.5 text-[10px] font-bold text-black">AI STUDIO</span>}
+          {clip.generated && <span className="ml-2 rounded border border-white/40 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.12em] text-white/80">AI STUDIO</span>}
           <button data-control onClick={() => setExpanded((e) => !e)} className={`mt-1 block text-left text-sm leading-snug ${expanded ? "" : "line-clamp-2"}`}>
             <span className="font-semibold">{clip.title}</span>{" "}
             {clip.hashtags.map((h) => (
@@ -137,14 +137,14 @@ export default function ClipSlot({ clip, active, onComments, onShare }: Props) {
           {expanded && clip.sources.length > 0 && (
             <div data-control className="mt-2 flex flex-col gap-1">
               {clip.sources.map((s) => (
-                <a key={s.url} href={s.url} target="_blank" rel="noreferrer" className="truncate text-xs text-lime underline-offset-2 hover:underline">
+                <a key={s.url} href={s.url} target="_blank" rel="noreferrer" className="truncate text-xs text-white/70 underline underline-offset-2 hover:text-white">
                   📎 {s.title}
                 </a>
               ))}
             </div>
           )}
           <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-white/85">
-            <span>📚</span>
+            <span className="grayscale">📚</span>
             <span className="truncate">
               {clip.concept} · {clip.company}
             </span>

@@ -156,7 +156,7 @@ export default function Studio() {
   return (
     <div className="flex h-full flex-col bg-ink">
       <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3" style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-lime to-violet text-black">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white text-black">
           <SparkIcon width={20} height={20} strokeWidth={2.5} />
         </div>
         <div className="min-w-0">
@@ -186,7 +186,7 @@ export default function Studio() {
               )}
               <div className={`flex max-w-[85%] flex-col gap-3 ${m.role === "user" ? "items-end" : ""}`}>
                 {(m.text || m.role === "user") && (
-                  <p className={`whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${m.role === "user" ? "rounded-br-md bg-violet text-white" : "rounded-tl-md bg-white/[0.07]"}`}>
+                  <p className={`whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${m.role === "user" ? "rounded-br-md bg-white text-black" : "rounded-tl-md bg-white/[0.07]"}`}>
                     {m.text}
                   </p>
                 )}
@@ -350,9 +350,9 @@ function JobCard({ job }: { job: Job }) {
       {job.clips.length > 0 && (
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
           {job.clips.map((c) => (
-            <Link key={c.id} href={`/clip/${c.id}`} className="group relative aspect-[9/14] overflow-hidden rounded-xl" style={{ background: `linear-gradient(160deg, ${usableAccent(c.color)}, #0b0b0f 75%)` }}>
+            <Link key={c.id} href={`/clip/${c.id}`} className="group relative aspect-[9/14] overflow-hidden rounded-xl" style={{ background: `radial-gradient(90% 70% at 20% 0%, ${usableAccent(c.color)}22, transparent 65%), linear-gradient(180deg, #161616, #050505)` }}>
               <div className="absolute inset-0 flex flex-col justify-between p-3">
-                <span className="text-3xl">{c.scenes[0]?.visual.kind === "title" ? c.scenes[0].visual.emoji : "✨"}</span>
+                <span className="text-3xl grayscale">{c.scenes[0]?.visual.kind === "title" ? c.scenes[0].visual.emoji : "✨"}</span>
                 <div>
                   <p className="line-clamp-3 text-sm font-bold leading-tight">{c.title}</p>
                   <p className="mt-1 text-[11px] text-white/60">{c.scenes.length} scenes · tap to watch</p>
@@ -365,7 +365,7 @@ function JobCard({ job }: { job: Job }) {
       )}
       {job.done && job.clips.length > 0 && (
         <div className="mt-3 flex items-center gap-2 text-xs text-white/50">
-          <Avatar emoji="✨" color="#c6ff3d" size={18} /> Published to @edutok.studio and boosted in your For You feed.
+          <Avatar emoji="✨" size={18} /> Published to @edutok.studio and boosted in your For You feed.
         </div>
       )}
     </div>

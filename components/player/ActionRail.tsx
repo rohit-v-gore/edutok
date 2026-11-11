@@ -62,7 +62,7 @@ export default function ActionRail({ clip, onComments, onShare }: { clip: Clip; 
       <Link
         href={`/explore?q=${encodeURIComponent(clip.concept)}`}
         aria-label={`More on ${clip.concept}`}
-        className="anim-spin mt-1 flex h-11 w-11 items-center justify-center rounded-full border-[6px] border-zinc-800 bg-zinc-900 text-lg"
+        className="anim-spin mt-1 flex h-11 w-11 items-center justify-center rounded-full border-[6px] border-zinc-800 bg-zinc-900 text-lg grayscale"
       >
         {channel.avatar}
       </Link>

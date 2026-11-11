@@ -113,10 +113,10 @@ export default function CommentsSheet({ clip, onClose }: { clip: Clip; onClose: 
 function CommentRow({ author, avatar, ai, text, when, typing }: { author: string; avatar?: string | null; ai?: boolean; text: string; when: string; typing?: boolean }) {
   return (
     <div className="flex gap-3">
-      {ai ? <Avatar emoji="✨" color="#c6ff3d" size={36} /> : <Avatar image={avatar} name={author} color="#7b61ff" size={36} />}
+      {ai ? <Avatar emoji="✨" size={36} /> : <Avatar image={avatar} name={author} size={36} />}
       <div className="min-w-0 flex-1">
         <p className="text-[13px] font-semibold text-white/60">
-          {author} {ai && <span className="ml-1 rounded bg-lime/90 px-1 text-[10px] font-bold text-black">TUTOR</span>}
+          {author} {ai && <span className="ml-1 rounded border border-white/40 px-1 text-[9px] font-semibold tracking-[0.1em] text-white/80">TUTOR</span>}
         </p>
         <p className={`mt-0.5 whitespace-pre-wrap text-[14.5px] leading-snug ${typing ? "caret" : ""}`}>{text}</p>
         <p className="mt-1 text-xs text-white/40">{when}</p>

@@ -52,7 +52,7 @@ export default function Profile({ clips }: { clips: Clip[] }) {
     <div className="no-scrollbar h-full overflow-y-auto">
       <div className="mx-auto max-w-5xl px-4 pb-10 pt-8">
         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
-          <Avatar image={user?.image} name={user?.name} color="#7b61ff" size={112} />
+          <Avatar image={user?.image} name={user?.name} size={112} />
           <div className="min-w-0">
             <h1 className="text-2xl font-extrabold">{user?.name ?? "Learner"}</h1>
             <p className="text-white/60">{user?.email ?? "Guest account · saved in this browser"}</p>

@@ -127,7 +127,7 @@ export default function Explore({ clips }: { clips: Clip[] }) {
         </section>
 
         {!q && cat === "All" && (
-          <section className="mt-8 rounded-2xl border border-white/10 bg-gradient-to-br from-violet/20 to-lime/10 p-5">
+          <section className="mt-8 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-5">
             <h2 className="text-lg font-bold">Not seeing your topic?</h2>
             <p className="mt-1 text-sm text-white/60">The AI Studio can research and script clips on anything, like {ideas.slice(0, 3).map((i) => i.concept).join(", ")}…</p>
             <Link href="/studio" className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">
