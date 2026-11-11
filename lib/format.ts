@@ -20,8 +20,8 @@ export function baseCounts(id: string) {
   return {
     likes: 1200 + (h % 240_000),
     comments: 40 + (h % 3100),
-    saves: 300 + ((h >> 3) % 42_000),
-    shares: 90 + ((h >> 5) % 18_000),
+    saves: 300 + ((h >>> 3) % 42_000),
+    shares: 90 + ((h >>> 5) % 18_000),
   };
 }
 
