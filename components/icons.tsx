@@ -53,12 +53,11 @@ export const LogoutIcon = (p: P) => <svg {...base(p)}><path d="M15 4h4v16h-4M10 
 export const GridIcon = (p: P) => <svg {...base(p)}><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></svg>;
 
 export function Logo({ size = 32 }: { size?: number }) {
-  // Original EduTok mark: a play button breaking out of a lime tile with a spark.
+  // EduTok mark: a black play glyph on a white rounded tile.
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden>
-      <rect x="2" y="2" width="36" height="36" rx="11" fill="#c6ff3d" />
-      <path d="M15 12.5v15l12-7.5z" fill="#0b0b0f" />
-      <circle cx="31" cy="9" r="3.2" fill="#7b61ff" stroke="#0b0b0f" strokeWidth="1.5" />
+      <rect x="2" y="2" width="36" height="36" rx="10" fill="#ffffff" />
+      <path d="M16 13v14l11-7z" fill="#000000" />
     </svg>
   );
 }

@@ -18,8 +18,8 @@ export default function Avatar({
   const cls = `inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${ring ? "ring-2 ring-white" : ""}`;
   if (image) return <img src={image} alt={name ?? ""} referrerPolicy="no-referrer" className={cls} style={style} />;
   return (
-    <span className={cls} style={{ ...style, background: `radial-gradient(circle at 30% 25%, ${color}, #111 120%)` }}>
-      {emoji ?? <span className="font-bold text-black/80" style={{ fontSize: size * 0.42 }}>{(name ?? "?").slice(0, 1).toUpperCase()}</span>}
+    <span className={`${cls} border border-white/15`} style={{ ...style, background: "radial-gradient(circle at 30% 25%, #3a3a3a, #0a0a0a 110%)" }} data-color={color}>
+      {emoji ? <span className="grayscale">{emoji}</span> : <span className="font-semibold text-white" style={{ fontSize: size * 0.42 }}>{(name ?? "?").slice(0, 1).toUpperCase()}</span>}
     </span>
   );
 }

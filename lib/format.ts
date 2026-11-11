@@ -43,14 +43,9 @@ export function timeAgo(iso: string): string {
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 
-// Clip brand colors can be near-black or near-white; pick something visible on a dark card.
-export function usableAccent(hex: string): string {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex);
-  if (!m) return "#c6ff3d";
-  const n = parseInt(m[1], 16);
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255);
-  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  const sat = Math.max(r, g, b) - Math.min(r, g, b);
-  if (lum < 0.12 || (sat < 0.08 && lum > 0.8)) return "#c6ff3d";
-  return `#${m[1]}`;
+// The UI is monochrome: every clip renders with a white accent regardless of its stored brand color.
+// Clip.color is kept in the data model so a themed mode can come back later.
+export function usableAccent(hex?: string): string {
+  void hex;
+  return "#ffffff";
 }
