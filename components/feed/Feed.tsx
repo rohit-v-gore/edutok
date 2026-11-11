@@ -120,6 +120,8 @@ export default function Feed({ clips, mode = "foryou", startId, emptyState }: Pr
         </button>
       </div>
 
+      {mode !== "single" && <SwipeHint />}
+
       {commentsFor && <CommentsSheet clip={commentsFor} onClose={() => setCommentsFor(null)} />}
       {shareFor && <ShareSheet clip={shareFor} onClose={() => setShareFor(null)} />}
     </div>
@@ -143,5 +145,35 @@ function MobileTopTabs({ mode }: { mode: "foryou" | "following" }) {
         <SearchIcon width={24} height={24} />
       </Link>
     </div>
+  );
+}
+
+// One-time onboarding hint, like the "swipe up" nudge short-video apps show on first open.
+function SwipeHint() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem("edutok:hinted")) {
+        setShow(true);
+        localStorage.setItem("edutok:hinted", "1");
+      }
+    } catch {
+      /* storage blocked: skip the hint */
+    }
+  }, []);
+  if (!show) return null;
+  return (
+    <button
+      onClick={() => setShow(false)}
+      className="anim-fade absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-black/70 text-center backdrop-blur-sm"
+    >
+      <span className="anim-float text-6xl">👆</span>
+      <p className="text-xl font-bold">
+        <span className="md:hidden">Swipe up for the next lesson</span>
+        <span className="hidden md:inline">Use ↑ ↓ or scroll for the next lesson</span>
+      </p>
+      <p className="max-w-xs text-sm text-white/60">Tap to pause · double-tap to like · turn on the voice for narration</p>
+      <span className="mt-2 rounded-full bg-lime px-5 py-2 text-sm font-semibold text-black">Start learning</span>
+    </button>
   );
 }

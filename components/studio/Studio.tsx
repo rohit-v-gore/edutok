@@ -192,7 +192,7 @@ export default function Studio() {
                 )}
                 {m.role === "assistant" && !m.text && thinking && i === msgs.length - 1 && <Dots />}
                 {m.suggestions && (
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="no-scrollbar -mr-4 flex snap-x gap-2 overflow-x-auto pr-4 sm:mr-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pr-0">
                     {m.suggestions.map((s) => (
                       <SuggestionCard key={`${s.concept}-${s.company}`} s={s} disabled={!session || busy} onMake={() => make(s.concept, s.company)} />
                     ))}
@@ -277,7 +277,7 @@ function Dots() {
 
 function SuggestionCard({ s, onMake, disabled }: { s: Suggestion; onMake: () => void; disabled: boolean }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+    <div className="flex w-[220px] shrink-0 snap-start flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-3 sm:w-auto">
       <p className="text-[15px] font-bold leading-tight">{s.concept}</p>
       <p className="mt-0.5 text-xs font-semibold text-lime">{s.company}</p>
       <p className="mt-1.5 flex-1 text-[13px] leading-snug text-white/60">{s.hook}</p>
