@@ -20,7 +20,9 @@ export default function CommentsSheet({ clip, onClose }: { clip: Clip; onClose: 
   const list = comments.filter((c) => c.clipId === clip.id);
   const bottom = useRef<HTMLDivElement>(null);
 
-  useEffect(() => bottom.current?.scrollIntoView({ behavior: "smooth" }), [list.length, streaming]);
+  useEffect(() => {
+    bottom.current?.scrollIntoView({ behavior: "smooth" });
+  }, [list.length, streaming]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

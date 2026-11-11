@@ -69,7 +69,9 @@ export default function Studio() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const end = useRef<HTMLDivElement>(null);
 
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [msgs, jobs]);
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [msgs, jobs]);
 
   async function send(text: string) {
     const t = text.trim();
