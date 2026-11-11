@@ -26,8 +26,8 @@ export default function Sidebar() {
     <aside className="hidden h-full w-[72px] shrink-0 flex-col border-r border-white/10 bg-black px-2 py-4 md:flex lg:w-[240px] lg:px-3">
       <Link href="/" className="mb-5 flex items-center gap-2 px-2">
         <Logo size={34} />
-        <span className="hidden text-[22px] font-extrabold tracking-tight lg:inline">
-          Edu<span className="text-lime">Tok</span>
+        <span className="hidden text-[21px] font-bold tracking-[-0.03em] lg:inline">
+          Edu<span className="font-light text-white/55">Tok</span>
         </span>
       </Link>
 
@@ -45,8 +45,8 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[17px] font-semibold transition hover:bg-white/[0.06] ${
-                active ? "text-lime" : "text-zinc-100"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[16px] font-medium tracking-tight transition hover:bg-white/[0.05] ${
+                active ? "bg-white/[0.06] text-white" : "text-white/55 hover:text-white"
               }`}
             >
               <Icon filled={active} width={26} height={26} />
