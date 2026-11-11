@@ -57,11 +57,11 @@ async function* askClaude(clip: Clip, question: string, history: { ai: boolean; 
 async function* askOffline(clip: Clip, question: string): AsyncGenerator<string> {
   const words = question.toLowerCase().split(/\W+/).filter((w) => w.length > 3);
   const best = [...clip.scenes]
-    .map((s) => ({ s, n: words.reduce((n, w) => n + (`${s.caption} ${s.narration}`.toLowerCase().includes(w) ? 1 : 0), 0) }))
+    .map((s) => ({ s, n: words.reduce((n, w) => n + (`${s.caption} ${s.narration} ${JSON.stringify(s.visual)}`.toLowerCase().includes(w) ? 1 : 0), 0) }))
     .sort((a, b) => b.n - a.n)[0];
   const answer =
     best && best.n > 0
-      ? `Good question! The key part is "${best.s.caption}": ${best.s.narration}`
+      ? `Good question! The key part is "${best.s.caption}": ${best.s.narration}${best.s.visual.kind === "bullets" ? ` (${best.s.visual.items.join(" · ")})` : ""}`
       : `Here's the short version: ${clip.scenes[1]?.narration ?? clip.scenes[0].narration}`;
   const tail = clip.sources[0] ? ` For the full story, check ${clip.sources[0].title}.` : "";
   const text = `${answer}${tail}\n\n(Offline tutor. Add an ANTHROPIC_API_KEY for full answers.)`;

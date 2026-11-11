@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "agent": "tsx scripts/generate.ts"
+    "agent": "tsx --conditions react-server scripts/generate.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
