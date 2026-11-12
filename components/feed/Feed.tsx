@@ -42,6 +42,9 @@ export default function Feed({ clips, mode = "foryou", startId, emptyState }: Pr
   // Rank once per page load (re-ranking while scrolling would make clips jump).
   const [order, setOrder] = useState<Clip[]>(clips);
   const ranked = useRef(false);
+  // Bumped after ranking so the scroller remounts at the top. Otherwise Chrome re-snaps to the clip that was
+  // first before ranking, which is why shared /clip/ links used to open on the wrong clip.
+  const [orderKey, setOrderKey] = useState(0);
   useEffect(() => {
     if (!ready || ranked.current) return;
     ranked.current = true;
@@ -53,6 +56,8 @@ export default function Feed({ clips, mode = "foryou", startId, emptyState }: Pr
       if (i > 0) list = [list[i], ...list.slice(0, i), ...list.slice(i + 1)];
     }
     setOrder(list);
+    setActive(0);
+    setOrderKey((k) => k + 1);
   }, [ready, clips, mode, startId, watched, follows, likes]);
 
   // Which slot is on screen?
@@ -67,7 +72,7 @@ export default function Feed({ clips, mode = "foryou", startId, emptyState }: Pr
     );
     root.querySelectorAll<HTMLElement>(".slot").forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [order]);
+  }, [order, orderKey]);
 
   const go = useCallback((dir: 1 | -1) => {
     const root = scroller.current;
@@ -97,7 +102,7 @@ export default function Feed({ clips, mode = "foryou", startId, emptyState }: Pr
       {ready && visible.length === 0 ? (
         <div className="flex h-full items-center justify-center p-8">{emptyState}</div>
       ) : (
-        <div ref={scroller} className="feed">
+        <div ref={scroller} key={orderKey} className="feed">
           {visible.map((clip, i) => (
             <section key={clip.id} className="slot" data-index={i}>
               {Math.abs(i - active) <= 2 ? (

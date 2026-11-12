@@ -26,6 +26,7 @@ body {
   height: calc(100dvh - var(--nav-h));
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
+  overflow-anchor: none;
   scrollbar-width: none;
 }
 .feed::-webkit-scrollbar { display: none; }
