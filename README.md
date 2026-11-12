@@ -49,9 +49,13 @@ The target architecture follows the pattern large short-video feeds use: serve c
 
 <p align="center"><img src="docs/diagrams/scale-serving.png" width="860" alt="Serving path at scale: clients, API gateway, CDN, feed, engagement and AI services, Redis, Postgres, wide-column store and object storage" /></p>
 
-**Learning loop and content pipeline.** Every interaction becomes an event, events become features and training data, and the recommender picks the next clips. New AI-made clips enter the same candidate pool once they pass fact-checking.
+**Learning loop.** Every interaction becomes an event. Events become real-time features and training data, and a three-stage recommender picks the next clips on every feed request.
 
-<p align="center"><img src="docs/diagrams/scale-learning-loop.png" width="860" alt="Learning loop: client events to event stream, features and training, a three-stage recommender, and the AI content pipeline feeding new candidates" /></p>
+<p align="center"><img src="docs/diagrams/scale-learning-loop.png" width="520" alt="Learning loop: client events to event stream, real-time features and model training, a three-stage recommender, and ranked clips back to the client" /></p>
+
+**Content pipeline.** AI-made clips are generated once in the background, fact-checked, then published and added to the same candidate pool as every other clip.
+
+<p align="center"><img src="docs/diagrams/scale-content-pipeline.png" width="860" alt="Content pipeline: studio request, job queue, research agents, script writer, fact-check, then publish to the clip store and the recommender" /></p>
 
 | Concern | Design choice | Why |
 |---|---|---|

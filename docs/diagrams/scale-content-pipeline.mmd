@@ -1,0 +1,4 @@
+flowchart LR
+  S["Studio request"] --> Q["Job queue"] --> RA["Research agents<br/>Claude + web"] --> WR["Script writer"] --> QC["Fact-check + quality score<br/>human review if flagged"]
+  QC -->|"publish"| PG[("Clip store")]
+  QC -->|"new candidates"| CG["Recommender"]

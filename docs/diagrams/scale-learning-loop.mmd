@@ -1,18 +1,14 @@
-flowchart LR
-  C["Clients"] -. "view · watch time · skip<br/>like · tutor question" .-> K["Event stream"]
+flowchart TB
+  C["Clients"] -. "view · watch time · skip · like · tutor question" .-> K["Event stream"]
   K --> SP["Stream processing<br/>real-time features"]
   K --> LAKE[("Data lake")]
-  LAKE --> TR["Model training<br/>online + daily"]
   SP --> FS[("Feature store")]
-
-  subgraph Rec["Recommender, per feed request"]
-    direction LR
-    CG["Candidate generation<br/>embeddings + vector index"] --> RK["Ranking model<br/>completion · likes · learning"] --> RR["Re-rank<br/>diversity · freshness · spaced review"]
-  end
+  LAKE --> TR["Model training<br/>online + daily"]
   TR --> CG
-  TR --> RK
   FS --> RK
-  RR -->|"ranked clip IDs"| F["Feed service"] --> C
-
-  S["Studio request"] --> Q["Job queue"] --> RA["Research agents<br/>Claude + web"] --> WR["Script writer"] --> QC["Fact-check + quality score<br/>human review if flagged"]
-  QC -->|"new clips"| CG
+  TR --> RK
+  subgraph Rec["Recommender"]
+    CG["1 · Candidate generation<br/>embeddings + vector index"] --> RK["2 · Ranking model<br/>completion · likes · learning"] --> RR["3 · Re-rank<br/>diversity · freshness · spaced review"]
+  end
+  RR -->|"ranked clip IDs"| F["Feed service"]
+  F -->|"next clips"| C
