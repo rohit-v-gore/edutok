@@ -97,7 +97,7 @@ export default function ClipSlot({ clip, active, onComments, onShare }: Props) {
         </div>
 
         {/* scene */}
-        <div key={`${player.idx}-${player.loops}`} className="absolute inset-0 flex flex-col items-center px-6 pb-[150px] pt-24 md:pb-[140px] md:pt-16">
+        <div key={`${player.idx}-${player.loops}`} className="absolute inset-0 flex flex-col items-center pl-5 pr-[76px] pb-[150px] md:px-6 pt-24 md:pb-[140px] md:pt-16">
           <h2 className="anim-rise text-shadow max-w-[340px] text-center text-[26px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[28px]">
             {scene.caption}
           </h2>
