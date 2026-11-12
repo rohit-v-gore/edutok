@@ -4,6 +4,22 @@ A short-form, swipeable learning feed. Instead of random videos, every clip is a
 
 The goal: a feed people can open instead of a social app that doesn't teach them anything.
 
+<p align="center">
+  <img src="docs/screenshots/feed-mobile.png" width="240" alt="Mobile feed: Uber's H3 hexagon clip comparing square and hexagon grids" />
+  &nbsp;
+  <img src="docs/screenshots/feed-mobile-2.png" width="240" alt="Mobile feed: Kafka clip showing an append-only log" />
+  &nbsp;
+  <img src="docs/screenshots/studio-mobile.png" width="240" alt="AI Studio chat suggesting concepts to turn into clips" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/feed-desktop.png" width="820" alt="Desktop feed: Stripe idempotency clip with sidebar and action rail" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/explore-desktop.png" width="820" alt="Explore page with channels, trending companies and a clip grid" />
+</p>
+
 ## Features
 - **Vertical snap feed** (For You / Following): tap to pause, double-tap to like, keyboard ↑/↓, a segmented scrubber, loop playback, and a mobile layout with a bottom nav and top tabs.
 - **Clips without video files.** Each clip is a set of animated scenes (titles, bullet builds, process flows, stats, comparisons, code, grids) with optional voice narration (Web Speech API) and karaoke-style captions.
@@ -16,6 +32,106 @@ The goal: a feed people can open instead of a social app that doesn't teach them
 - **Explore** (search, categories, channels, trending companies), **channel pages**, and a **profile** with Liked, Saved, Made with AI and Watched tabs plus learning stats.
 - **Google sign-in** via NextAuth, plus a guest login so it works before OAuth is configured.
 - 22 hand-written launch clips, each citing its primary sources.
+
+## System design
+
+### How it works today
+A single Next.js app. Clips are not video files: each one is a list of scenes (caption, narration, visual) stored as JSON, and the player animates them in the browser. That keeps a clip around 5 KB instead of several MB of video.
+
+```mermaid
+flowchart LR
+  U["Browser<br/>(web + mobile web)"] -->|"Google / guest login"| A["NextAuth"]
+  U -->|"feed, explore, profile"| N["Next.js server"]
+  N --> S["Clip store<br/>22 seed clips + generated JSON"]
+  U -->|"likes, saves, follows, history"| L[("localStorage")]
+  U -->|"AI Studio"| G["/api/generate"]
+  G --> R["Research agent<br/>Claude + web search/fetch"]
+  R --> W["Script writer<br/>Claude structured output"]
+  W --> S
+  U -->|"Ask AI"| T["Tutor<br/>Claude, grounded in the clip"]
+```
+
+The Claude agent path is implemented; so far the offline path (Wikipedia research + template writer) is what has been run end to end.
+
+### How it scales to millions of daily users
+The target architecture follows the pattern large short-video feeds use: serve content from the edge, log every interaction as an event, and let a recommender trained on those events (in near real time) decide what comes next. ByteDance described its real-time training approach publicly in the [Monolith paper](https://arxiv.org/abs/2209.07663).
+
+```mermaid
+flowchart TB
+  subgraph Clients
+    C1["iOS / Android / Web"]
+  end
+
+  C1 -->|"clip JSON, audio, thumbnails"| CDN["Global CDN"]
+  C1 -->|"API calls"| GW["API gateway<br/>Google OAuth, rate limits"]
+
+  subgraph Services
+    FEED["Feed service"]
+    ENG["Engagement service<br/>likes, saves, follows, comments"]
+    STU["Studio service"]
+    TUT["Tutor service"]
+    SRCH["Search service"]
+  end
+  GW --> FEED & ENG & STU & TUT & SRCH
+
+  subgraph Storage
+    PG[("Postgres, sharded<br/>users, clips, follows")]
+    WC[("Wide-column store<br/>views, likes, counters")]
+    RD[("Redis<br/>feed cache, sessions, counters")]
+    OS[("Object storage<br/>audio, renders, thumbnails")]
+    IDX[("Search index")]
+  end
+  ENG --> WC & RD
+  FEED --> RD
+  SRCH --> IDX
+  OS --> CDN
+
+  subgraph Events["Event pipeline"]
+    K["Event stream<br/>view, watch time, skip, like, question"]
+    SP["Stream processing<br/>real-time features"]
+    LAKE[("Data lake / warehouse")]
+  end
+  C1 -.->|"client events"| K
+  ENG -.-> K
+  K --> SP & LAKE
+
+  subgraph Rec["Recommender"]
+    FS[("Feature store")]
+    CG["Candidate generation<br/>embeddings + vector index"]
+    RK["Ranking model<br/>completion, likes, learning"]
+    RR["Re-rank<br/>diversity, freshness, spaced review"]
+    TR["Training<br/>online + daily batch"]
+  end
+  SP --> FS
+  LAKE --> TR --> CG & RK
+  FEED --> CG --> RK --> RR --> FEED
+  FS --> RK
+
+  subgraph Gen["Content pipeline"]
+    Q["Job queue"]
+    RA["Research agents<br/>Claude + web"]
+    WR["Script writer"]
+    QC["Fact-check + quality scoring<br/>human review when flagged"]
+    TTS["Narration + optional video render"]
+  end
+  STU --> Q --> RA --> WR --> QC --> TTS
+  QC --> PG
+  TTS --> OS
+  QC -->|"new clips as candidates"| CG
+  TUT --> PG
+```
+
+| Concern | Design choice | Why |
+|---|---|---|
+| Serving the feed | Clips are small JSON and cached at the CDN; the feed service returns only an ordered list of IDs | Most reads never touch the database |
+| Ranking | Two stages: cheap candidate retrieval from embeddings, then a heavier model on a few hundred candidates | Scoring the whole catalog per request doesn't scale |
+| Learning from users | Every view, skip and watch time goes to the event stream; features update within seconds | The feed adapts during a session, the core short-video loop |
+| Education signal | Ranking also optimizes for learning (tutor questions, quiz answers, spaced review), not just watch time | Our goal is understanding, not only engagement |
+| Writes at volume | Likes and views go to a wide-column store and Redis counters, aggregated asynchronously | Counters on hot clips would otherwise lock rows |
+| Generating content | Clips are made once by a queued agent pipeline, fact-checked, then watched by everyone | AI cost is per clip, not per viewer |
+| Rough load at 1M daily users | ~50M clip views and ~250M events/day; ~600 views/s average, a few thousand at peak | Comfortable for a CDN plus a horizontally scaled stateless API |
+
+The path from today's prototype to the first production version is in [docs/PRODUCTION.md](docs/PRODUCTION.md).
 
 ## Run it
 ```bash
