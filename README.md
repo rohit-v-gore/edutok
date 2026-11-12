@@ -51,7 +51,7 @@ The target architecture follows the pattern large short-video feeds use: serve c
 
 **Learning loop.** Every interaction becomes an event. Events become real-time features and training data, and a three-stage recommender picks the next clips on every feed request.
 
-<p align="center"><img src="docs/diagrams/scale-learning-loop.png" width="520" alt="Learning loop: client events to event stream, real-time features and model training, a three-stage recommender, and ranked clips back to the client" /></p>
+<p align="center"><img src="docs/diagrams/learning-loop.png" width="520" alt="Learning loop: client events to event stream, real-time features and model training, a three-stage recommender, and ranked clips back to the client" /></p>
 
 **Content pipeline.** AI-made clips are generated once in the background, fact-checked, then published and added to the same candidate pool as every other clip.
 
