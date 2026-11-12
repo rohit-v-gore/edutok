@@ -56,69 +56,53 @@ The Claude agent path is implemented; so far the offline path (Wikipedia researc
 ### How it scales to millions of daily users
 The target architecture follows the pattern large short-video feeds use: serve content from the edge, log every interaction as an event, and let a recommender trained on those events (in near real time) decide what comes next. ByteDance described its real-time training approach publicly in the [Monolith paper](https://arxiv.org/abs/2209.07663).
 
+**Serving path.** Every swipe is a cheap read: the clip itself comes from the CDN, and the API only returns which clip IDs to show next.
+
 ```mermaid
-flowchart TB
-  subgraph Clients
-    C1["iOS / Android / Web"]
-  end
+flowchart LR
+  C["Clients<br/>iOS · Android · Web"]
+  CDN["Global CDN<br/>clip JSON · audio · thumbnails"]
+  GW["API gateway<br/>Google OAuth · rate limits"]
+  FEED["Feed service"]
+  ENG["Engagement service<br/>likes · saves · follows · comments"]
+  AI["Studio + Tutor services"]
+  RD[("Redis<br/>feed cache · counters")]
+  PG[("Postgres, sharded<br/>users · clips · follows")]
+  WC[("Wide-column store<br/>views · likes")]
+  OS[("Object storage<br/>audio · renders")]
 
-  C1 -->|"clip JSON, audio, thumbnails"| CDN["Global CDN"]
-  C1 -->|"API calls"| GW["API gateway<br/>Google OAuth, rate limits"]
-
-  subgraph Services
-    FEED["Feed service"]
-    ENG["Engagement service<br/>likes, saves, follows, comments"]
-    STU["Studio service"]
-    TUT["Tutor service"]
-    SRCH["Search service"]
-  end
-  GW --> FEED & ENG & STU & TUT & SRCH
-
-  subgraph Storage
-    PG[("Postgres, sharded<br/>users, clips, follows")]
-    WC[("Wide-column store<br/>views, likes, counters")]
-    RD[("Redis<br/>feed cache, sessions, counters")]
-    OS[("Object storage<br/>audio, renders, thumbnails")]
-    IDX[("Search index")]
-  end
-  ENG --> WC & RD
+  C -->|"media"| CDN
+  C -->|"API"| GW
+  GW --> FEED & ENG & AI
   FEED --> RD
-  SRCH --> IDX
+  FEED --> PG
+  ENG --> RD
+  ENG --> WC
+  AI --> PG
   OS --> CDN
+```
 
-  subgraph Events["Event pipeline"]
-    K["Event stream<br/>view, watch time, skip, like, question"]
-    SP["Stream processing<br/>real-time features"]
-    LAKE[("Data lake / warehouse")]
-  end
-  C1 -.->|"client events"| K
-  ENG -.-> K
-  K --> SP & LAKE
+**Learning loop and content pipeline.** Every interaction becomes an event, events become features and training data, and the recommender picks the next clips. New AI-made clips enter the same candidate pool once they pass fact-checking.
 
-  subgraph Rec["Recommender"]
-    FS[("Feature store")]
-    CG["Candidate generation<br/>embeddings + vector index"]
-    RK["Ranking model<br/>completion, likes, learning"]
-    RR["Re-rank<br/>diversity, freshness, spaced review"]
-    TR["Training<br/>online + daily batch"]
+```mermaid
+flowchart LR
+  C["Clients"] -. "view · watch time · skip<br/>like · tutor question" .-> K["Event stream"]
+  K --> SP["Stream processing<br/>real-time features"]
+  K --> LAKE[("Data lake")]
+  LAKE --> TR["Model training<br/>online + daily"]
+  SP --> FS[("Feature store")]
+
+  subgraph Rec["Recommender, per feed request"]
+    direction LR
+    CG["Candidate generation<br/>embeddings + vector index"] --> RK["Ranking model<br/>completion · likes · learning"] --> RR["Re-rank<br/>diversity · freshness · spaced review"]
   end
-  SP --> FS
-  LAKE --> TR --> CG & RK
-  FEED --> CG --> RK --> RR --> FEED
+  TR --> CG
+  TR --> RK
   FS --> RK
+  RR -->|"ranked clip IDs"| F["Feed service"] --> C
 
-  subgraph Gen["Content pipeline"]
-    Q["Job queue"]
-    RA["Research agents<br/>Claude + web"]
-    WR["Script writer"]
-    QC["Fact-check + quality scoring<br/>human review when flagged"]
-    TTS["Narration + optional video render"]
-  end
-  STU --> Q --> RA --> WR --> QC --> TTS
-  QC --> PG
-  TTS --> OS
-  QC -->|"new clips as candidates"| CG
-  TUT --> PG
+  S["Studio request"] --> Q["Job queue"] --> RA["Research agents<br/>Claude + web"] --> WR["Script writer"] --> QC["Fact-check + quality score<br/>human review if flagged"]
+  QC -->|"new clips"| CG
 ```
 
 | Concern | Design choice | Why |
