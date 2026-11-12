@@ -1,0 +1,10 @@
+flowchart LR
+  U["Browser<br/>web + mobile web"] -->|"Google / guest login"| A["NextAuth"]
+  U -->|"feed, explore, profile"| N["Next.js server"]
+  N --> S["Clip store<br/>22 seed clips + generated JSON"]
+  U -->|"likes, saves, follows, history"| L[("localStorage")]
+  U -->|"AI Studio"| G["/api/generate"]
+  G --> R["Research agent<br/>Claude + web search/fetch"]
+  R --> W["Script writer<br/>Claude structured output"]
+  W --> S
+  U -->|"Ask AI"| T["Tutor<br/>Claude, grounded in the clip"]

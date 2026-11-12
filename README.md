@@ -38,18 +38,7 @@ The goal: a feed people can open instead of a social app that doesn't teach them
 ### How it works today
 A single Next.js app. Clips are not video files: each one is a list of scenes (caption, narration, visual) stored as JSON, and the player animates them in the browser. That keeps a clip around 5 KB instead of several MB of video.
 
-```mermaid
-flowchart LR
-  U["Browser<br/>(web + mobile web)"] -->|"Google / guest login"| A["NextAuth"]
-  U -->|"feed, explore, profile"| N["Next.js server"]
-  N --> S["Clip store<br/>22 seed clips + generated JSON"]
-  U -->|"likes, saves, follows, history"| L[("localStorage")]
-  U -->|"AI Studio"| G["/api/generate"]
-  G --> R["Research agent<br/>Claude + web search/fetch"]
-  R --> W["Script writer<br/>Claude structured output"]
-  W --> S
-  U -->|"Ask AI"| T["Tutor<br/>Claude, grounded in the clip"]
-```
+<p align="center"><img src="docs/diagrams/today.png" width="860" alt="Current architecture: browser, NextAuth, Next.js server, clip store, localStorage and the Claude research, writer and tutor agents" /></p>
 
 The Claude agent path is implemented; so far the offline path (Wikipedia research + template writer) is what has been run end to end.
 
@@ -58,52 +47,11 @@ The target architecture follows the pattern large short-video feeds use: serve c
 
 **Serving path.** Every swipe is a cheap read: the clip itself comes from the CDN, and the API only returns which clip IDs to show next.
 
-```mermaid
-flowchart LR
-  C["Clients<br/>iOS · Android · Web"]
-  CDN["Global CDN<br/>clip JSON · audio · thumbnails"]
-  GW["API gateway<br/>Google OAuth · rate limits"]
-  FEED["Feed service"]
-  ENG["Engagement service<br/>likes · saves · follows · comments"]
-  AI["Studio + Tutor services"]
-  RD[("Redis<br/>feed cache · counters")]
-  PG[("Postgres, sharded<br/>users · clips · follows")]
-  WC[("Wide-column store<br/>views · likes")]
-  OS[("Object storage<br/>audio · renders")]
-
-  C -->|"media"| CDN
-  C -->|"API"| GW
-  GW --> FEED & ENG & AI
-  FEED --> RD
-  FEED --> PG
-  ENG --> RD
-  ENG --> WC
-  AI --> PG
-  OS --> CDN
-```
+<p align="center"><img src="docs/diagrams/scale-serving.png" width="860" alt="Serving path at scale: clients, API gateway, CDN, feed, engagement and AI services, Redis, Postgres, wide-column store and object storage" /></p>
 
 **Learning loop and content pipeline.** Every interaction becomes an event, events become features and training data, and the recommender picks the next clips. New AI-made clips enter the same candidate pool once they pass fact-checking.
 
-```mermaid
-flowchart LR
-  C["Clients"] -. "view · watch time · skip<br/>like · tutor question" .-> K["Event stream"]
-  K --> SP["Stream processing<br/>real-time features"]
-  K --> LAKE[("Data lake")]
-  LAKE --> TR["Model training<br/>online + daily"]
-  SP --> FS[("Feature store")]
-
-  subgraph Rec["Recommender, per feed request"]
-    direction LR
-    CG["Candidate generation<br/>embeddings + vector index"] --> RK["Ranking model<br/>completion · likes · learning"] --> RR["Re-rank<br/>diversity · freshness · spaced review"]
-  end
-  TR --> CG
-  TR --> RK
-  FS --> RK
-  RR -->|"ranked clip IDs"| F["Feed service"] --> C
-
-  S["Studio request"] --> Q["Job queue"] --> RA["Research agents<br/>Claude + web"] --> WR["Script writer"] --> QC["Fact-check + quality score<br/>human review if flagged"]
-  QC -->|"new clips"| CG
-```
+<p align="center"><img src="docs/diagrams/scale-learning-loop.png" width="860" alt="Learning loop: client events to event stream, features and training, a three-stage recommender, and the AI content pipeline feeding new candidates" /></p>
 
 | Concern | Design choice | Why |
 |---|---|---|
@@ -115,7 +63,7 @@ flowchart LR
 | Generating content | Clips are made once by a queued agent pipeline, fact-checked, then watched by everyone | AI cost is per clip, not per viewer |
 | Rough load at 1M daily users | ~50M clip views and ~250M events/day; ~600 views/s average, a few thousand at peak | Comfortable for a CDN plus a horizontally scaled stateless API |
 
-The path from today's prototype to the first production version is in [docs/PRODUCTION.md](docs/PRODUCTION.md).
+Diagram sources (Mermaid) are in [docs/diagrams/](docs/diagrams/). The path from today's prototype to the first production version is in [docs/PRODUCTION.md](docs/PRODUCTION.md).
 
 ## Run it
 ```bash

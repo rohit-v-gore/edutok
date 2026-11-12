@@ -1,0 +1,23 @@
+flowchart LR
+  C["Clients<br/>iOS · Android · Web"]
+  GW["API gateway<br/>Google OAuth · rate limits"]
+  CDN["Global CDN<br/>clip JSON · audio · thumbnails"]
+  FEED["Feed service"]
+  ENG["Engagement service<br/>likes · saves · follows · comments"]
+  AI["Studio + Tutor services"]
+  RD[("Redis<br/>feed cache · counters")]
+  WC[("Wide-column store<br/>views · likes")]
+  PG[("Postgres, sharded<br/>users · clips · follows")]
+  OS[("Object storage<br/>audio · renders")]
+
+  C -->|"API"| GW
+  C -->|"media"| CDN
+  GW --> FEED
+  GW --> ENG
+  GW --> AI
+  FEED --> RD
+  ENG --> RD
+  ENG --> WC
+  FEED --> PG
+  AI --> PG
+  CDN -->|"origin"| OS
